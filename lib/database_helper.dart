@@ -50,7 +50,8 @@ class DatabaseHelper {
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
     //returns numbre of rows updated
-    int oldId = row['id'];
+    var oldId = row['id'];
+    print(oldId);
     int id = await db.update("Test", row, where: "id = ?", whereArgs: [oldId]);
     print('updated: $id');
     return id;

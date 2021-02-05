@@ -1,156 +1,55 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
+import 'item.dart';
 
 class HomePage extends StatefulWidget {
   @override
   _State createState() => new _State();
 }
 
-class MyItem {
-  bool isExpanded;
-  final String header;
-  final Widget body;
-
-  MyItem(this.isExpanded, this.header, this.body);
-}
-
 class _State extends State<HomePage> {
   List<MyItem> _items = new List<MyItem>();
   final _formKey = GlobalKey<FormState>();
+  final _updatedformKey = GlobalKey<FormState>();
   TextEditingController _name;
   TextEditingController _value;
   TextEditingController _numero;
+  TextEditingController _updateName;
+  TextEditingController _updateValue;
+  TextEditingController _updateNumero;
 
   @override
   void initState() {
-    // Duration d = new Duration(milliseconds: 1000);
-    // Timer t = new Timer(d, () => display());
-    display();
     _name = new TextEditingController();
     _value = new TextEditingController();
     _numero = new TextEditingController();
+    display();
   }
 
   void display() async {
     List<Map<String, dynamic>> rows =
         await DatabaseHelper.instance.rowsdisplayAll();
-    print(rows);
+    // print(rows);
     rows.forEach((element) {
-      // _name = TextEditingController(text: element["name"]);
-      // _value = TextEditingController(text: element["value"].toString());
-      // _numero = TextEditingController(text: element["num"].toString());
-
       MyItem item = new MyItem(
-          false,
-          element["name"],
-          new Row(children: [
-            new Container(
-              child: new Text(
-                  "value is ${element['value']}, and num is ${element['num']}"),
-              padding: EdgeInsets.all(10.0),
-            ),
-            new IconButton(
-                icon: Icon(Icons.update),
-                color: Colors.redAccent,
-                tooltip: 'update',
-                onPressed: () {
-                  print('Not Working yet');
-                  //         showDialog(
-                  //             context: context,
-                  //             builder: (BuildContext context) {
-                  //               return AlertDialog(
-                  //                 content: Stack(
-                  //                   overflow: Overflow.visible,
-                  //                   children: <Widget>[
-                  //                     Positioned(
-                  //                       right: -40.0,
-                  //                       top: -40.0,
-                  //                       child: InkResponse(
-                  //                         onTap: () {
-                  //                           Navigator.of(context).pop();
-                  //                         },
-                  //                         child: CircleAvatar(
-                  //                           child: Icon(Icons.close),
-                  //                           backgroundColor: Colors.red,
-                  //                         ),
-                  //                       ),
-                  //                     ),
-                  //                     Form(
-                  //                       key: _formKey,
-                  //                       child: Column(
-                  //                         mainAxisSize: MainAxisSize.min,
-                  //                         children: <Widget>[
-                  //                           Padding(
-                  //                             padding: EdgeInsets.all(8.0),
-                  //                             child: TextFormField(
-                  //                               controller: _name,
-                  //                               decoration: new InputDecoration(
-                  //                                   labelText: 'Enter name'),
-                  //                             ),
-                  //                           ),
-                  //                           Padding(
-                  //                             padding: EdgeInsets.all(8.0),
-                  //                             child: TextFormField(
-                  //                                 controller: _value,
-                  //                                 decoration: new InputDecoration(
-                  //                                     labelText: 'Enter value')),
-                  //                           ),
-                  //                           Padding(
-                  //                             padding: EdgeInsets.all(8.0),
-                  //                             child: TextFormField(
-                  //                                 controller: _numero,
-                  //                                 decoration: new InputDecoration(
-                  //                                     labelText: 'Enter num')),
-                  //                           ),
-                  //                           Padding(
-                  //                             padding: const EdgeInsets.all(8.0),
-                  //                             child: RaisedButton(
-                  //                               child: Text("Add details"),
-                  //                               onPressed: () {
-                  //                                 if (_formKey.currentState
-                  //                                     .validate()) {
-                  //                                   _formKey.currentState.save();
-                  //                                   MyItem item = new MyItem(
-                  //                                       false,
-                  //                                       _name.text,
-                  //                                       new Container(
-                  //                                         child: new Text(
-                  //                                             "value is ${_value.text}, and num is ${_numero.text}"),
-                  //                                         padding: EdgeInsets.all(10.0),
-                  //                                       ));
-                  //                                   setState(() {
-                  //                                     DatabaseHelper.instance.update({
-                  //                                       "name": _name.text,
-                  //                                       "value": int.parse(_value.text),
-                  //                                       "num":
-                  //                                           double.parse(_numero.text)
-                  //                                     });
-                  //                                     //_items[_items.indexOf(item)] = ;
-                  //                                   });
-                  //                                   Navigator.of(context).pop();
-                  //                                 }
-                  //                               },
-                  //                             ),
-                  //                           )
-                  //                         ],
-                  //                       ),
-                  //                     ),
-                  //                   ],
-                  //                 ),
-                  //               );
-                  //             });
-                  //
-                })
-          ]));
+          id: element["id"],
+          isExpanded: false,
+          name: element["name"],
+          valeur: element["value"],
+          numero: element["num"]);
       setState(() {
         _items.add(item);
       });
     });
   }
 
-  void _insert(BuildContext context) {
+  void buildDialog(
+      String submit,
+      GlobalKey<FormState> formKey,
+      TextEditingController name,
+      TextEditingController value,
+      TextEditingController numero,
+      Function func) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -172,58 +71,35 @@ class _State extends State<HomePage> {
                   ),
                 ),
                 Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: TextFormField(
-                            controller: _name,
+                            controller: name,
                             decoration:
                                 new InputDecoration(labelText: 'Enter name')),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: TextFormField(
-                            controller: _value,
+                            controller: value,
                             decoration:
                                 new InputDecoration(labelText: 'Enter value')),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: TextFormField(
-                            controller: _numero,
+                            controller: numero,
                             decoration:
                                 new InputDecoration(labelText: 'Enter num')),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: RaisedButton(
-                          child: Text("Add details"),
-                          onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              _formKey.currentState.save();
-                              MyItem item = new MyItem(
-                                  false,
-                                  _name.text,
-                                  new Container(
-                                    child: new Text(
-                                        "value is ${_value.text}, and num is ${_numero.text}"),
-                                    padding: EdgeInsets.all(10.0),
-                                  ));
-                              setState(() {
-                                DatabaseHelper.instance.insert({
-                                  "name": _name.text,
-                                  "value": int.parse(_value.text),
-                                  "num": double.parse(_numero.text)
-                                });
-                                _items.add(item);
-                              });
-                              Navigator.of(context).pop();
-                            }
-                          },
-                        ),
+                        child:
+                            RaisedButton(child: Text(submit), onPressed: func),
                       )
                     ],
                   ),
@@ -234,15 +110,104 @@ class _State extends State<HomePage> {
         });
   }
 
+  void _insert() async {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+      MyItem item = new MyItem(
+          isExpanded: false,
+          name: _name.text,
+          valeur: int.parse(_value.text),
+          numero: double.parse(_numero.text));
+      int id = await DatabaseHelper.instance.insert({
+        "name": _name.text,
+        "value": int.parse(_value.text),
+        "num": double.parse(_numero.text)
+      });
+      setState(() {
+        _formKey.currentState.reset();
+        item.id = id;
+        _items.add(item);
+      });
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _onCreate(BuildContext context) {
+    buildDialog(
+        "Add details", _formKey, _name, _value, _numero, () => _insert());
+  }
+
+  void _update(MyItem element) {
+    String name;
+    int value;
+    double numero;
+    if (_updatedformKey.currentState.validate()) {
+      _updatedformKey.currentState.save();
+      name = _updateName.text;
+      value = int.parse(_updateValue.text);
+      numero = double.parse(_updateNumero.text);
+
+      DatabaseHelper.instance.update(
+          {"id": element.id, "name": name, "value": value, "num": numero});
+      setState(() {
+        _items[_items.indexOf(element)].name = name;
+        _items[_items.indexOf(element)].valeur = value;
+        _items[_items.indexOf(element)].numero = numero;
+
+        _updatedformKey.currentState.reset();
+        Navigator.of(context).pop();
+      });
+    }
+  }
+
+  Widget updateIconButton(MyItem element) {
+    return new IconButton(
+        //key: Key('$i'),
+        icon: Icon(Icons.update),
+        color: Colors.redAccent,
+        tooltip: 'update',
+        onPressed: () {
+          _updateName = TextEditingController(text: element.name);
+          _updateValue = TextEditingController(text: element.valeur.toString());
+          _updateNumero =
+              TextEditingController(text: element.numero.toString());
+          buildDialog("Update details", _updatedformKey, _updateName,
+              _updateValue, _updateNumero, () => _update(element));
+        });
+  }
+
+  Widget deleteIconButton(MyItem item) {
+    return new IconButton(
+        icon: Icon(Icons.delete),
+        onPressed: () {
+          var deleted = DatabaseHelper.instance.delete(item.id);
+          print('successfully deleted $deleted');
+          setState(() {
+            _items.removeAt(_items.indexOf(item));
+          });
+        });
+  }
+
   ExpansionPanel _createItem(MyItem item) {
     return new ExpansionPanel(
         headerBuilder: (BuildContext context, bool isExpanded) {
-          return new Container(
-            padding: EdgeInsets.all(5.0),
-            child: new Text("${item.header}"),
+          return Container(
+            padding: EdgeInsets.all(20.0),
+            child: new Text(
+              "${item.name}",
+              style: new TextStyle(fontSize: 16.0),
+            ),
           );
         },
-        body: item.body,
+        body: new Center(
+            child: new Row(children: [
+          Container(
+            child: MyItem.buildContent(item.valeur, item.numero),
+            padding: EdgeInsets.all(10.0),
+          ),
+          updateIconButton(item),
+          deleteIconButton(item)
+        ])),
         isExpanded: item.isExpanded);
   }
 
@@ -255,15 +220,18 @@ class _State extends State<HomePage> {
       body: new Column(children: [
         new Text("List of elements",
             style: TextStyle(
-                fontSize: 25.0, height: 2.0, color: Colors.redAccent)),
+                fontSize: 30.0, height: 2.0, color: Colors.redAccent)),
         Expanded(
             child: SizedBox(
           height: 200,
           child: new Container(
+              //width: 300,
               // padding: new EdgeInsets.all(20.0),
               margin: EdgeInsets.only(top: 20.0),
               child: new ListView(children: <Widget>[
                 new ExpansionPanelList(
+                  dividerColor: Colors.redAccent,
+                  animationDuration: new Duration(milliseconds: 400),
                   expansionCallback: (int index, bool isExpanded) {
                     setState(() {
                       _items[index].isExpanded = !_items[index].isExpanded;
@@ -275,7 +243,7 @@ class _State extends State<HomePage> {
         ))
       ]),
       floatingActionButton: new FloatingActionButton(
-        onPressed: () => _insert(context),
+        onPressed: () => _onCreate(context),
         tooltip: 'Add',
         child: new Icon(Icons.add),
       ),
